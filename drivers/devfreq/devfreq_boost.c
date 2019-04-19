@@ -6,10 +6,16 @@
 #define pr_fmt(fmt) "devfreq_boost: " fmt
 
 #include <linux/devfreq_boost.h>
+<<<<<<< HEAD
 #include <linux/msm_drm_notify.h>
 #include <linux/input.h>
 #include <linux/kthread.h>
 #include <linux/slab.h>
+=======
+#include <linux/fb.h>
+#include <linux/input.h>
+#include <linux/kthread.h>
+>>>>>>> cffe520308d5... devfreq_boost: Introduce devfreq boost driver
 #include <uapi/linux/sched/types.h>
 
 enum {
@@ -30,7 +36,11 @@ struct boost_dev {
 
 struct df_boost_drv {
 	struct boost_dev devices[DEVFREQ_MAX];
+<<<<<<< HEAD
 	struct notifier_block msm_drm_notif;
+=======
+	struct notifier_block fb_notif;
+>>>>>>> cffe520308d5... devfreq_boost: Introduce devfreq boost driver
 };
 
 static void devfreq_input_unboost(struct work_struct *work);
@@ -177,6 +187,7 @@ static int devfreq_boost_thread(void *data)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int msm_drm_notifier_cb(struct notifier_block *nb, unsigned long action,
 			  void *data)
 {
@@ -187,13 +198,27 @@ static int msm_drm_notifier_cb(struct notifier_block *nb, unsigned long action,
 
 	/* Parse framebuffer blank events as soon as they occur */
 	if (action != MSM_DRM_EARLY_EVENT_BLANK)
+=======
+static int fb_notifier_cb(struct notifier_block *nb, unsigned long action,
+			  void *data)
+{
+	struct df_boost_drv *d = container_of(nb, typeof(*d), fb_notif);
+	int i, *blank = ((struct fb_event *)data)->data;
+
+	/* Parse framebuffer blank events as soon as they occur */
+	if (action != FB_EARLY_EVENT_BLANK)
+>>>>>>> cffe520308d5... devfreq_boost: Introduce devfreq boost driver
 		return NOTIFY_OK;
 
 	/* Boost when the screen turns on and unboost when it turns off */
 	for (i = 0; i < DEVFREQ_MAX; i++) {
 		struct boost_dev *b = d->devices + i;
 
+<<<<<<< HEAD
 		if (*blank == MSM_DRM_BLANK_UNBLANK) {
+=======
+		if (*blank == FB_BLANK_UNBLANK) {
+>>>>>>> cffe520308d5... devfreq_boost: Introduce devfreq boost driver
 			clear_bit(SCREEN_OFF, &b->state);
 			__devfreq_boost_kick_max(b,
 				CONFIG_DEVFREQ_WAKE_BOOST_DURATION_MS);
@@ -279,11 +304,14 @@ static const struct input_device_id devfreq_boost_ids[] = {
 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
 		.evbit = { BIT_MASK(EV_KEY) }
 	},
+<<<<<<< HEAD
 	/* Power Key */
 	{
 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
 		.evbit = { BIT_MASK(KEY_POWER) }
 	},
+=======
+>>>>>>> cffe520308d5... devfreq_boost: Introduce devfreq boost driver
 	{ }
 };
 
@@ -304,9 +332,14 @@ static int __init devfreq_boost_init(void)
 	for (i = 0; i < DEVFREQ_MAX; i++) {
 		struct boost_dev *b = d->devices + i;
 
+<<<<<<< HEAD
 		thread[i] = kthread_run_perf_critical(cpu_perf_mask,
 						      devfreq_boost_thread, b,
 						      "devfreq_boostd/%d", i);
+=======
+		thread[i] = kthread_run(devfreq_boost_thread, b,
+					"devfreq_boostd/%d", i);
+>>>>>>> cffe520308d5... devfreq_boost: Introduce devfreq boost driver
 		if (IS_ERR(thread[i])) {
 			ret = PTR_ERR(thread[i]);
 			pr_err("Failed to create kthread, err: %d\n", ret);
@@ -321,9 +354,15 @@ static int __init devfreq_boost_init(void)
 		goto stop_kthreads;
 	}
 
+<<<<<<< HEAD
 	d->msm_drm_notif.notifier_call = msm_drm_notifier_cb;
 	d->msm_drm_notif.priority = INT_MAX;
 	ret = msm_drm_register_client(&d->msm_drm_notif);
+=======
+	d->fb_notif.notifier_call = fb_notifier_cb;
+	d->fb_notif.priority = INT_MAX;
+	ret = fb_register_client(&d->fb_notif);
+>>>>>>> cffe520308d5... devfreq_boost: Introduce devfreq boost driver
 	if (ret) {
 		pr_err("Failed to register fb notifier, err: %d\n", ret);
 		goto unregister_handler;
