@@ -374,21 +374,6 @@ config ARCH_ZYNQMP
 	help
 	  This enables support for Xilinx ZynqMP Family
 
-menu "Xiaomi configuration options"
-
-config MACH_XIAOMI
-        bool "Xiaomi board"
-        depends on ARCH_QCOM
-        help
-          Support for Xiaomi boards.
-
-config MACH_XIAOMI_SDMMAGPIE
-        bool "Xiaomi SDMMAGPIE boards"
-        depends on ARCH_SDMMAGPIE
-        select MACH_XIAOMI
-        help
-          Support for Sdmmagpie-based Xiaomi variants
-
 menu "Xiaomi board selection"
 
 config MACH_XIAOMI_COURBET
@@ -426,8 +411,6 @@ config MACH_XIAOMI_TUCANA
         select MACH_XIAOMI_SDMMAGPIE
         help
           Support for MI CC9 Pro, codenamed tucana.
-endmenu
-
 endmenu
 
 endmenu
