@@ -1,4 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0
+ifeq ($(CONFIG_MATCH_XIAOMI),y)
+ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+
+dtbo-$(CONFIG_MATCH_XIAOMI_K6) += sweet-sdmmagpie-overlay.dtbo
+sweet-sdmmagpie-overlay.dtbo-base := sdmmagpie.dtb
+endif
+else
 ifeq ($(TARGET_BOARD_TYPE),auto)
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 	dtbo-$(CONFIG_ARCH_SM8150) += \
@@ -88,6 +95,13 @@ endif
 
 else # TARGET_BOARD_TYPE != auto
 
+dtb-$(CONFIG_ARCH_QCOM)	+= apq8016-sbc.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= apq8096-db820c.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= ipq8074-hk01.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-mtp.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= msm8992-bullhead-rev-101.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= msm8994-angler-rev-101.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= msm8996-mtp.dtb
 dtb-$(CONFIG_ARCH_QCS403) += qcs403-iot-sku1.dtb \
 		qcs403-iot-sku3.dtb \
 		qcs403-iot-sku5.dtb \
@@ -307,22 +321,28 @@ dtb-$(CONFIG_ARCH_SM6150)	+= sm6150-rumi.dtb \
 endif
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
-	dtbo-$(CONFIG_MACH_XIAOMI_SWEET) += \
-		sweet-sdmmagpie-overlay.dtbo
-	
-	dtbo-$(CONFIG_MACH_XIAOMI_PHOENIX) += \
-		phoenix-sdmmagpie-overlay.dtbo
-	
-	dtbo-$(CONFIG_MACH_XIAOMI_TOCO) += \
-		toco-sdmmagpie-overlay.dtbo
-	
-	dtbo-$(CONFIG_MACH_XIAOMI_TUCANA) += \
-		tucana-sdmmagpie-overlay.dtbo
+	dtbo-$(CONFIG_ARCH_SDMMAGPIE) += \
+		sdmmagpie-idp-overlay.dtbo \
+		sdmmagpie-atp-overlay.dtbo \
+		sdmmagpie-rumi-overlay.dtbo \
+		sdmmagpie-qrd-overlay.dtbo \
+		sdmmagpiep-idp-overlay.dtbo \
+		sdmmagpiep-atp-overlay.dtbo \
+		sdmmagpiep-qrd-overlay.dtbo \
+		sdmmagpie-external-codec-idp-overlay.dtbo \
+		sdmmagpie-usbc-idp-overlay.dtbo \
+		sdmmagpie-dual-display-idp-overlay.dtbo
 
-sweet-sdmmagpie-overlay.dtbo-base := sdmmagpie.dtb
-phoenix-sdmmagpie-overlay.dtbo-base := sdmmagpie.dtb
-toco-sdmmagpie-overlay.dtbo-base := sdmmagpie.dtb
-tucana-sdmmagpie-overlay.dtbo-base := sdmmagpie.dtb
+sdmmagpie-idp-overlay.dtbo-base := sdmmagpie.dtb
+sdmmagpie-atp-overlay.dtbo-base := sdmmagpie.dtb
+sdmmagpie-rumi-overlay.dtbo-base := sdmmagpie.dtb
+sdmmagpie-qrd-overlay.dtbo-base := sdmmagpie.dtb
+sdmmagpiep-idp-overlay.dtbo-base := sdmmagpiep.dtb
+sdmmagpiep-atp-overlay.dtbo-base := sdmmagpiep.dtb
+sdmmagpiep-qrd-overlay.dtbo-base := sdmmagpiep.dtb
+sdmmagpie-external-codec-idp-overlay.dtbo-base := sdmmagpie.dtb
+sdmmagpie-usbc-idp-overlay.dtbo-base := sdmmagpie.dtb
+sdmmagpie-dual-display-idp-overlay.dtbo-base := sdmmagpie.dtb
 else
 dtb-$(CONFIG_ARCH_SDMMAGPIE)	+= sdmmagpie-rumi.dtb \
 	sdmmagpie-idp.dtb \
@@ -331,10 +351,9 @@ dtb-$(CONFIG_ARCH_SDMMAGPIE)	+= sdmmagpie-rumi.dtb \
 	sdmmagpiep-idp.dtb \
 	sdmmagpiep-atp.dtb \
 	sdmmagpiep-qrd.dtb \
-	sweet-sdmmagpie.dtb \
-	phoenix-sdmmagpie.dtb \
-	toco-sdmmagpie.dtb \
-	tucana-sdmmagpie.dtb \
+	sdmmagpie-external-codec-idp.dtb \
+	sdmmagpie-usbc-idp.dtb \
+	sdmmagpie-dual-display-idp.dtb
 endif
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
@@ -346,7 +365,6 @@ ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 		trinket-usbc-external-codec-idp-overlay.dtbo \
 		trinket-usbc-idp-overlay.dtbo \
 		trinket-dp-idp-overlay.dtbo \
-		trinket-facepay-overlay.dtbo \
 		trinket-iot-idp-overlay.dtbo \
 		trinketp-iot-idp-overlay.dtbo \
 		trinket-iot-external-codec-idp-overlay.dtbo \
@@ -365,7 +383,6 @@ trinket-external-codec-idp-overlay.dtbo-base := trinket.dtb
 trinket-usbc-external-codec-idp-overlay.dtbo-base := trinket.dtb
 trinket-usbc-idp-overlay.dtbo-base := trinket.dtb
 trinket-dp-idp-overlay.dtbo-base := trinket.dtb
-trinket-facepay-overlay.dtbo-base := trinket-iot.dtb
 trinket-iot-idp-overlay.dtbo-base := trinket-iot.dtb
 trinketp-iot-idp-overlay.dtbo-base := trinketp-iot.dtb
 trinket-iot-external-codec-idp-overlay.dtbo-base := trinket-iot.dtb
@@ -594,6 +611,7 @@ $(obj)/%.dtbo:$(src)/../../../../arm64/boot/dts/qcom/%.dts FORCE
 dtbs: $(addprefix $(obj)/,$(dtb-y)) $(addprefix $(obj)/,$(dtbo-y))
 else
 dtbs: $(addprefix $(obj)/../,$(dtb-y))
+endif
 endif
 endif
 clean-files	:= *.dtb *.dtbo
