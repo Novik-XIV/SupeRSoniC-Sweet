@@ -1,5 +1,13 @@
 menu "Platform selection"
 
+menu "Xiaomi device selection"
+
+config MACH_XIAOMI_SWEET
+    bool "Redmi Note 10 Pro"
+    help
+      Support for Redmi Note 10 Pro
+endmenu
+
 config ARCH_ACTIONS
 	bool "Actions Semi Platforms"
 	select OWL_TIMER
