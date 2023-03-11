@@ -299,6 +299,11 @@ struct mem_cgroup {
 
 extern struct mem_cgroup *root_mem_cgroup;
 
+static inline bool mem_cgroup_is_root(struct mem_cgroup *memcg)
+{
+	return (memcg == root_mem_cgroup);
+}
+
 static inline bool mem_cgroup_disabled(void)
 {
 	return !cgroup_subsys_enabled(memory_cgrp_subsys);
@@ -361,14 +366,6 @@ struct lruvec *mem_cgroup_page_lruvec(struct page *, struct pglist_data *);
 
 bool task_in_mem_cgroup(struct task_struct *task, struct mem_cgroup *memcg);
 struct mem_cgroup *mem_cgroup_from_task(struct task_struct *p);
-
-struct mem_cgroup *get_mem_cgroup_from_mm(struct mm_struct *mm);
-
-static inline void mem_cgroup_put(struct mem_cgroup *memcg)
-{
-	if (memcg)
-		css_put(&memcg->css);
-}
 
 static inline
 struct mem_cgroup *mem_cgroup_from_css(struct cgroup_subsys_state *css){
@@ -494,18 +491,6 @@ unsigned long mem_cgroup_get_limit(struct mem_cgroup *memcg);
 void mem_cgroup_print_oom_info(struct mem_cgroup *memcg,
 				struct task_struct *p);
 
-static inline void mem_cgroup_enter_user_fault(void)
-{
-	WARN_ON(current->in_user_fault);
-	current->in_user_fault = 1;
-}
-
-static inline void mem_cgroup_exit_user_fault(void)
-{
-	WARN_ON(!current->in_user_fault);
-	current->in_user_fault = 0;
-}
-
 static inline bool task_in_memcg_oom(struct task_struct *p)
 {
 	return p->memcg_in_oom;
@@ -520,23 +505,6 @@ extern int do_swap_account;
 struct mem_cgroup *lock_page_memcg(struct page *page);
 void __unlock_page_memcg(struct mem_cgroup *memcg);
 void unlock_page_memcg(struct page *page);
-
-/* try to stablize page_memcg() for all the pages in a memcg */
-static inline bool mem_cgroup_trylock_pages(struct mem_cgroup *memcg)
-{
-        rcu_read_lock();
-
-        if (mem_cgroup_disabled() || !atomic_read(&memcg->moving_account))
-                return true;
-
-        rcu_read_unlock();
-        return false;
-}
-
-static inline void mem_cgroup_unlock_pages(void)
-{
-        rcu_read_unlock();
-}
 
 /*
  * idx can be of type enum memcg_stat_item or node_stat_item.
@@ -787,6 +755,11 @@ static inline void mem_cgroup_put(struct mem_cgroup *memcg)
 
 struct mem_cgroup;
 
+static inline bool mem_cgroup_is_root(struct mem_cgroup *memcg)
+{
+	return true;
+}
+
 static inline bool mem_cgroup_disabled(void)
 {
 	return true;
@@ -863,15 +836,6 @@ static inline bool task_in_mem_cgroup(struct task_struct *task,
 				      const struct mem_cgroup *memcg)
 {
 	return true;
-}
-
-static inline struct mem_cgroup *get_mem_cgroup_from_mm(struct mm_struct *mm)
-{
-        return NULL;
-}
-
-static inline void mem_cgroup_put(struct mem_cgroup *memcg)
-{
 }
 
 static inline struct mem_cgroup *
@@ -957,27 +921,7 @@ static inline void unlock_page_memcg(struct page *page)
 {
 }
 
-static inline bool mem_cgroup_trylock_pages(struct mem_cgroup *memcg)
-{
-	/* to match page_memcg_rcu() */
-	rcu_read_lock();
-	return true;
-}
-
-static inline void mem_cgroup_unlock_pages(void)
-{
-	rcu_read_unlock();
-}
-
 static inline void mem_cgroup_handle_over_high(void)
-{
-}
-
-static inline void mem_cgroup_enter_user_fault(void)
-{
-}
-
-static inline void mem_cgroup_exit_user_fault(void)
 {
 }
 
